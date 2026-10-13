@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Página de baloncesto: historia, posiciones, récords y la pasión por el juego de la NBA. Proyecto educativo hecho con HTML5 y Tailwind CSS." />
+  <title>Hardwood | Pasión por el baloncesto</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@500;600;700&family=Orbitron:wght@600;800&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    /* ============================================================
+       CONFIGURACIÓN DE TAILWIND
+       >>> MODIFICACIÓN 1 (hazla TÚ): cambia el color principal
+           ("court" = azul, "hoop" = rojo) y las fuentes
+           "display" y "sans" por las que prefieras.
+       ============================================================ */
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            court: { 50:'#eef3fc', 100:'#d9e4f7', 300:'#7f9fd9', 500:'#2a5bb8', 600:'#1d428a', 700:'#173570', 800:'#10264f', 900:'#0a1733', 950:'#060e20' },
+            hoop:  { 400:'#ef4a63', 500:'#e0223f', 600:'#c8102e', 700:'#a30c25' },
+            ball:  '#f58426',
+          },
+          fontFamily: {
+            display: ['Oswald', 'sans-serif'],
+            digital: ['Orbitron', 'sans-serif'],
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          boxShadow: {
+            red:  '0 12px 40px -10px rgba(200,16,46,.7)',
+            blue: '0 12px 40px -12px rgba(42,91,184,.8)',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+    section[id] { scroll-margin-top: 4.5rem; }
+
+    /* Balón flotando */
+    @keyframes bounce-ball {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50%      { transform: translateY(-26px) rotate(8deg); }
+    }
+    @keyframes shadow-pulse {
+      0%, 100% { transform: scaleX(1);   opacity: .5; }
+      50%      { transform: scaleX(.7);  opacity: .25; }
+    }
+    .ball-anim   { animation: bounce-ball 2.2s ease-in-out infinite; transform-origin: center; }
+    .shadow-anim { animation: shadow-pulse 2.2s ease-in-out infinite; transform-origin: center; }
+
+    /* Franja de texto en movimiento (ticker) */
+    @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .ticker-track { animation: ticker 28s linear infinite; }
+
+    /* Textura de parquet sutil */
+    .parquet {
+      background-image: repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 2px, transparent 2px 46px);
+    }
+
+    /* Madera para el fondo de la sección de contacto */
+    .wood {
+      background-color: #6b4423;
+      background-image:
+        repeating-linear-gradient(90deg, rgba(0,0,0,.22) 0 2px, transparent 2px 64px),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 32px, transparent 32px 64px);
+    }
+
+    /* Posiciones de la media cancha (sección Mi juego) */
+    .pos circle { fill: #10264f; stroke: #fff; stroke-opacity: .5; stroke-width: 2; transition: fill .3s, stroke .3s, opacity .3s; }
+    .pos text   { fill: #fff; transition: opacity .3s; }
+    .pos        { opacity: .45; transition: opacity .3s; }
+    .pos.activa { opacity: 1; }
+    .pos.activa circle { fill: #c8102e; stroke: #fff; stroke-opacity: 1; filter: drop-shadow(0 0 8px rgba(224,34,63,.9)); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { opacity: 1; transform: none; transition: none; }
+      .ball-anim, .shadow-anim, .ticker-track { animation: none; }
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+
+<body class="bg-court-950 font-sans text-slate-300 antialiased">
+
+  <a href="#contenido" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-court-700">Saltar al contenido</a>
+
+  <!-- ===================== HEADER + NAV ===================== -->
+  <header class="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-court-950/85 backdrop-blur-lg">
+    <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
+      <a href="#inicio" class="flex items-center gap-2.5 font-display text-xl font-bold uppercase tracking-wider text-white">
+        <svg class="h-8 w-8" viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="46" fill="#f58426"/>
+          <g fill="none" stroke="#1a1209" stroke-width="3.5" stroke-linecap="round">
+            <path d="M50 4v92M4 50h92"/><path d="M18 18c20 20 20 44 0 64M82 18c-20 20-20 44 0 64"/>
+          </g>
+        </svg>
+        Hard<span class="text-hoop-500">wood</span>
+      </a>
+
+      <nav aria-label="Navegación principal">
+        <ul class="hidden items-center gap-8 font-display text-sm uppercase tracking-widest text-slate-300 md:flex">
+          <li><a class="transition hover:text-white" href="#juego">El juego</a></li>
+          <li><a class="transition hover:text-white" href="#quinteto">Quinteto</a></li>
+          <li><a class="transition hover:text-white" href="#historia">Historia</a></li>
+          <li><a class="transition hover:text-white" href="#records">Récords</a></li>
+          <li><a class="transition hover:text-white" href="#mi-juego">Mi juego</a></li>
+          <li><a href="#contacto" class="rounded-md bg-hoop-600 px-5 py-2 text-white transition hover:bg-hoop-500">Únete</a></li>
+        </ul>
+      </nav>
+
+      <button id="menu-btn" type="button" class="grid h-10 w-10 place-items-center rounded-md text-white md:hidden" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu-movil">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+
+    <div id="menu-movil" class="hidden border-t border-white/10 bg-court-950 md:hidden">
+      <ul class="space-y-1 px-5 py-4 font-display uppercase tracking-widest text-slate-200">
+        <li><a class="block rounded-md px-3 py-2 hover:bg-white/10" href="#juego">El juego</a></li>
+        <li><a class="block rounded-md px-3 py-2 hover:bg-white/10" href="#quinteto">Quinteto</a></li>
+        <li><a class="block rounded-md px-3 py-2 hover:bg-white/10" href="#historia">Historia</a></li>
+        <li><a class="block rounded-md px-3 py-2 hover:bg-white/10" href="#records">Récords</a></li>
+        <li><a class="block rounded-md px-3 py-2 hover:bg-white/10" href="#mi-juego">Mi juego</a></li>
+        <li><a class="block rounded-md bg-hoop-600 px-3 py-2 text-center text-white" href="#contacto">Únete</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <main id="contenido">
+
+    <!-- ===================== HERO ===================== -->
+    <section id="inicio" class="parquet relative isolate overflow-hidden bg-gradient-to-b from-court-900 via-court-950 to-court-950 pb-0 pt-28 text-white sm:pt-36">
+
+      <!-- Líneas de cancha dibujadas -->
+      <svg class="absolute inset-0 -z-10 h-full w-full opacity-[.13]" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice" fill="none" stroke="#fff" stroke-width="3" aria-hidden="true">
+        <rect x="60" y="60" width="1080" height="580" rx="6"/>
+        <line x1="600" y1="60" x2="600" y2="640"/>
+        <circle cx="600" cy="350" r="90"/>
+        <rect x="60" y="230" width="230" height="240"/>
+        <rect x="910" y="230" width="230" height="240"/>
+        <path d="M290 270a90 90 0 0 1 0 160M910 270a90 90 0 0 0 0 160"/>
+        <path d="M60 130h120a260 260 0 0 1 0 440H60M1140 130h-120a260 260 0 0 0 0 440h120"/>
+      </svg>
+      <div class="absolute -right-24 top-10 -z-10 h-96 w-96 rounded-full bg-hoop-600/30 blur-3xl" aria-hidden="true"></div>
+      <div class="absolute -left-24 bottom-10 -z-10 h-96 w-96 rounded-full bg-court-500/30 blur-3xl" aria-hidden="true"></div>
+
+      <div class="mx-auto grid max-w-6xl items-center gap-12 px-5 pb-20 lg:grid-cols-2">
+        <div>
+          <p class="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 font-display text-xs uppercase tracking-[.25em] text-hoop-400">
+            <span class="h-2 w-2 animate-pulse rounded-full bg-hoop-500" aria-hidden="true"></span> En vivo desde la cancha
+          </p>
+          <h1 class="font-display text-5xl font-bold uppercase leading-[1.02] sm:text-6xl lg:text-7xl">
+            Vive el juego.<br />
+            <span class="bg-gradient-to-r from-hoop-500 via-white to-court-300 bg-clip-text text-transparent">Respira baloncesto.</span>
+          </h1>
+          <p class="mt-6 max-w-xl text-lg leading-relaxed text-slate-300">
+            Un viaje por la historia, las posiciones y los récords que hicieron del baloncesto —y de la NBA— un espectáculo mundial.
+          </p>
+          <div class="mt-9 flex flex-wrap gap-4">
+            <a href="#quinteto" class="rounded-md bg-hoop-600 px-8 py-3.5 font-display uppercase tracking-widest text-white shadow-red transition hover:-translate-y-0.5 hover:bg-hoop-500">Armar mi quinteto</a>
+            <a href="#historia" class="rounded-md border border-white/25 px-8 py-3.5 font-display uppercase tracking-widest text-white transition hover:bg-white/10">Ver historia</a>
+            <!-- >>> MODIFICACIÓN 2 (hazla TÚ): agrega aquí TU botón o enlace nuevo
+                 (ej.: tu equipo favorito, un video, tu GitHub) -->
+          </div>
+        </div>
+
+        <!-- Marcador + balón -->
+        <div class="relative mx-auto w-full max-w-md">
+          <div class="relative mx-auto h-56 w-56 sm:h-64 sm:w-64">
+            <svg class="ball-anim relative z-10 h-full w-full drop-shadow-[0_20px_30px_rgba(245,132,38,.35)]" viewBox="0 0 200 200" role="img" aria-label="Balón de baloncesto naranja con líneas negras">
+              <defs>
+                <radialGradient id="g" cx="35%" cy="30%" r="75%">
+                  <stop offset="0" stop-color="#ffb066"/><stop offset=".55" stop-color="#f58426"/><stop offset="1" stop-color="#b8560f"/>
+                </radialGradient>
+              </defs>
+              <circle cx="100" cy="100" r="92" fill="url(#g)"/>
+              <g fill="none" stroke="#1a1209" stroke-width="5" stroke-linecap="round">
+                <path d="M100 8v184M8 100h184"/>
+                <path d="M34 34c42 40 42 92 0 132M166 34c-42 40-42 92 0 132"/>
+              </g>
+            </svg>
+            <div class="shadow-anim absolute -bottom-3 left-1/2 h-4 w-40 -translate-x-1/2 rounded-full bg-black/60 blur-md" aria-hidden="true"></div>
+          </div>
+
+          <!-- Marcador digital -->
+          <div class="mt-10 rounded-xl border border-white/10 bg-black/60 p-5 shadow-blue backdrop-blur" role="group" aria-label="Marcador de ejemplo">
+            <div class="mb-3 flex items-center justify-between text-xs uppercase tracking-widest text-slate-400">
+              <span>Cuarto 4</span>
+              <span class="font-digital text-hoop-500" id="reloj">02:00</span>
+            </div>
+            <div class="grid grid-cols-3 items-center text-center">
+              <div><p class="font-display text-sm uppercase tracking-widest text-court-300">Local</p><p class="font-digital text-5xl font-extrabold text-white" id="marc-local">104</p></div>
+              <p class="font-display text-xl text-slate-500">VS</p>
+              <div><p class="font-display text-sm uppercase tracking-widest text-hoop-400">Visita</p><p class="font-digital text-5xl font-extrabold text-white" id="marc-visita">101</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ticker -->
+      <div class="overflow-hidden border-y border-white/10 bg-hoop-600 py-3" aria-hidden="true">
+        <div class="ticker-track flex w-max gap-10 whitespace-nowrap font-display text-lg uppercase tracking-[.2em] text-white">
+          <span>Driblar</span><span>★</span><span>Pasar</span><span>★</span><span>Encestar</span><span>★</span><span>Defender</span><span>★</span><span>Rebotear</span><span>★</span><span>Ganar</span><span>★</span>
+          <span>Driblar</span><span>★</span><span>Pasar</span><span>★</span><span>Encestar</span><span>★</span><span>Defender</span><span>★</span><span>Rebotear</span><span>★</span><span>Ganar</span><span>★</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== EL JUEGO ===================== -->
+    <section id="juego" class="mx-auto max-w-6xl px-5 py-24">
+      <div class="reveal">
+        <p class="font-display text-sm uppercase tracking-[.3em] text-hoop-500">El juego</p>
+        <h2 class="mt-3 max-w-2xl font-display text-4xl font-bold uppercase text-white sm:text-5xl">Cinco contra cinco, un solo aro</h2>
+        <p class="mt-5 max-w-2xl text-lg leading-relaxed text-slate-300">
+          Dos equipos de cinco jugadores compiten por encestar el balón en el aro rival. Cada canasta suma puntos según la distancia desde donde se lanza.
+        </p>
+      </div>
+
+      <div class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <article class="reveal rounded-xl border border-white/10 bg-court-900/70 p-6 text-center">
+          <p class="font-digital text-5xl font-extrabold text-white"><span data-count="1">0</span></p>
+          <h3 class="mt-2 font-display text-lg uppercase tracking-widest text-court-300">Tiro libre</h3>
+          <p class="mt-2 text-sm">Se lanza tras una falta, sin defensa.</p>
+        </article>
+        <article class="reveal rounded-xl border border-white/10 bg-court-900/70 p-6 text-center">
+          <p class="font-digital text-5xl font-extrabold text-white"><span data-count="2">0</span></p>
+          <h3 class="mt-2 font-display text-lg uppercase tracking-widest text-court-300">Doble</h3>
+          <p class="mt-2 text-sm">Canasta dentro de la línea de tres.</p>
+        </article>
+        <article class="reveal rounded-xl border border-white/10 bg-court-900/70 p-6 text-center">
+          <p class="font-digital text-5xl font-extrabold text-white"><span data-count="3">0</span></p>
+          <h3 class="mt-2 font-display text-lg uppercase tracking-widest text-court-300">Triple</h3>
+          <p class="mt-2 text-sm">Canasta desde detrás del arco.</p>
+        </article>
+        <article class="reveal rounded-xl border border-hoop-600/50 bg-hoop-600/10 p-6 text-center">
+          <p class="font-digital text-5xl font-extrabold text-white"><span data-count="48">0</span></p>
+          <h3 class="mt-2 font-display text-lg uppercase tracking-widest text-hoop-400">Minutos</h3>
+          <p class="mt-2 text-sm">Cuatro cuartos de 12 min en la NBA.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===================== QUINTETO ===================== -->
+    <section id="quinteto" class="border-y border-white/10 bg-gradient-to-b from-court-900 to-court-950 py-24">
+      <div class="mx-auto max-w-6xl px-5">
+        <div class="reveal text-center">
+          <p class="font-display text-sm uppercase tracking-[.3em] text-hoop-500">Quinteto titular</p>
+          <h2 class="mt-3 font-display text-4xl font-bold uppercase text-white sm:text-5xl">Cinco posiciones, cinco roles</h2>
+          <p class="mx-auto mt-4 max-w-xl text-slate-300">Selecciona una posición para conocer su función en la cancha.</p>
+        </div>
+
+        <div class="reveal mt-12 grid gap-8 lg:grid-cols-5">
+          <div role="tablist" aria-label="Posiciones" class="flex gap-2 overflow-x-auto pb-2 lg:col-span-2 lg:flex-col lg:overflow-visible" id="tabs">
+            <button role="tab" aria-selected="true"  data-pos="base"   class="tab shrink-0 rounded-lg border px-5 py-4 text-left font-display uppercase tracking-widest transition"><span class="mr-3 text-hoop-400">1</span>Base</button>
+            <button role="tab" aria-selected="false" data-pos="escolta" class="tab shrink-0 rounded-lg border px-5 py-4 text-left font-display uppercase tracking-widest transition"><span class="mr-3 text-hoop-400">2</span>Escolta</button>
+            <button role="tab" aria-selected="false" data-pos="alero"  class="tab shrink-0 rounded-lg border px-5 py-4 text-left font-display uppercase tracking-widest transition"><span class="mr-3 text-hoop-400">3</span>Alero</button>
+            <button role="tab" aria-selected="false" data-pos="ala"    class="tab shrink-0 rounded-lg border px-5 py-4 text-left font-display uppercase tracking-widest transition"><span class="mr-3 text-hoop-400">4</span>Ala-pívot</button>
+            <button role="tab" aria-selected="false" data-pos="pivot"  class="tab shrink-0 rounded-lg border px-5 py-4 text-left font-display uppercase tracking-widest transition"><span class="mr-3 text-hoop-400">5</span>Pívot</button>
+          </div>
+
+          <div role="tabpanel" aria-live="polite" class="rounded-2xl border border-white/10 bg-court-900/80 p-8 shadow-blue lg:col-span-3">
+            <p class="font-display text-sm uppercase tracking-[.3em] text-hoop-400" id="pos-num">Posición 1</p>
+            <h3 class="mt-2 font-display text-4xl font-bold uppercase text-white" id="pos-titulo">Base</h3>
+            <p class="mt-4 text-lg leading-relaxed text-slate-300" id="pos-desc"></p>
+            <ul class="mt-6 grid gap-3 sm:grid-cols-3" id="pos-skills"></ul>
+            <div id="skill-detalle" aria-live="polite" class="mt-5 rounded-xl border border-hoop-500/30 bg-hoop-600/10 p-6"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== HISTORIA ===================== -->
+    <section id="historia" class="mx-auto max-w-4xl px-5 py-24">
+      <div class="reveal text-center">
+        <p class="font-display text-sm uppercase tracking-[.3em] text-hoop-500">Historia</p>
+        <h2 class="mt-3 font-display text-4xl font-bold uppercase text-white sm:text-5xl">De cestas de duraznos a un fenómeno global</h2>
+      </div>
+
+      <ol class="relative mt-14 space-y-10 border-l-2 border-hoop-600/60 pl-8">
+        <li class="reveal relative">
+          <span class="absolute -left-[2.6rem] top-1 grid h-5 w-5 place-items-center rounded-full bg-hoop-600 ring-4 ring-court-950" aria-hidden="true"></span>
+          <p class="font-digital text-sm text-hoop-400">1891</p>
+          <h3 class="font-display text-2xl uppercase text-white">Nace el baloncesto</h3>
+          <p class="mt-1">James Naismith inventa el juego en Massachusetts usando cestas de duraznos como aros.</p>
+        </li>
+        <li class="reveal relative">
+          <span class="absolute -left-[2.6rem] top-1 h-5 w-5 rounded-full bg-hoop-600 ring-4 ring-court-950" aria-hidden="true"></span>
+          <p class="font-digital text-sm text-hoop-400">1946 – 1949</p>
+          <h3 class="font-display text-2xl uppercase text-white">Se forma la liga</h3>
+          <p class="mt-1">Nace la BAA en 1946 y, tras fusionarse con otra liga en 1949, adopta el nombre de NBA.</p>
+        </li>
+        <li class="reveal relative">
+          <span class="absolute -left-[2.6rem] top-1 h-5 w-5 rounded-full bg-hoop-600 ring-4 ring-court-950" aria-hidden="true"></span>
+          <p class="font-digital text-sm text-hoop-400">1979</p>
+          <h3 class="font-display text-2xl uppercase text-white">Llega el triple</h3>
+          <p class="mt-1">La línea de tres puntos se incorpora a la liga y cambia para siempre la estrategia ofensiva.</p>
+        </li>
+        <li class="reveal relative">
+          <span class="absolute -left-[2.6rem] top-1 h-5 w-5 rounded-full bg-hoop-600 ring-4 ring-court-950" aria-hidden="true"></span>
+          <p class="font-digital text-sm text-hoop-400">Años 80 y 90</p>
+          <h3 class="font-display text-2xl uppercase text-white">La era de las superestrellas</h3>
+          <p class="mt-1">Grandes rivalidades y figuras icónicas llevan el baloncesto a audiencias de todo el mundo.</p>
+        </li>
+        <li class="reveal relative">
+          <span class="absolute -left-[2.6rem] top-1 h-5 w-5 rounded-full bg-hoop-600 ring-4 ring-court-950" aria-hidden="true"></span>
+          <p class="font-digital text-sm text-hoop-400">Hoy</p>
+          <h3 class="font-display text-2xl uppercase text-white">Juego sin fronteras</h3>
+          <p class="mt-1">Jugadores de decenas de países, más tiros de tres y un estilo más veloz y estratégico.</p>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ===================== RÉCORDS ===================== -->
+    <section id="records" class="border-t border-white/10 bg-court-900/60 py-24">
+      <div class="mx-auto max-w-6xl px-5">
+        <div class="reveal text-center">
+          <p class="font-display text-sm uppercase tracking-[.3em] text-hoop-500">Récords</p>
+          <h2 class="mt-3 font-display text-4xl font-bold uppercase text-white sm:text-5xl">Marcas que quedaron en la historia</h2>
+        </div>
+
+        <div class="mt-12 grid gap-6 md:grid-cols-3">
+          <article class="reveal group rounded-2xl border border-white/10 bg-gradient-to-br from-court-800 to-court-900 p-8 transition hover:-translate-y-1 hover:border-hoop-500/60">
+            <p class="font-digital text-6xl font-extrabold text-white">100</p>
+            <h3 class="mt-3 font-display text-xl uppercase tracking-widest text-hoop-400">Puntos en un partido</h3>
+            <p class="mt-2 text-sm">Wilt Chamberlain anotó 100 puntos en un solo juego en 1962, una marca aún vigente.</p>
+          </article>
+          <article class="reveal group rounded-2xl border border-white/10 bg-gradient-to-br from-court-800 to-court-900 p-8 transition hover:-translate-y-1 hover:border-hoop-500/60">
+            <p class="font-digital text-6xl font-extrabold text-white">11</p>
+            <h3 class="mt-3 font-display text-xl uppercase tracking-widest text-hoop-400">Campeonatos</h3>
+            <p class="mt-2 text-sm">Bill Russell ganó 11 títulos con los Boston Celtics, el máximo de un jugador.</p>
+          </article>
+          <article class="reveal group rounded-2xl border border-white/10 bg-gradient-to-br from-court-800 to-court-900 p-8 transition hover:-translate-y-1 hover:border-hoop-500/60">
+            <p class="font-digital text-6xl font-extrabold text-white">73-9</p>
+            <h3 class="mt-3 font-display text-xl uppercase tracking-widest text-hoop-400">Temporada regular</h3>
+            <p class="mt-2 text-sm">Los Golden State Warriors lograron la mejor marca en 2015-16.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== MI JUEGO (sección propia) ===================== -->
+    <section id="mi-juego" class="relative overflow-hidden border-t border-white/10 bg-gradient-to-b from-court-950 via-court-900 to-court-950 py-24">
+      <div class="absolute -left-20 top-20 h-80 w-80 rounded-full bg-hoop-600/20 blur-3xl" aria-hidden="true"></div>
+      <div class="absolute -right-20 bottom-10 h-80 w-80 rounded-full bg-court-500/25 blur-3xl" aria-hidden="true"></div>
+
+      <div class="relative mx-auto max-w-6xl px-5">
+        <div class="reveal text-center">
+          <p class="font-display text-sm uppercase tracking-[.3em] text-hoop-500">Mi juego</p>
+          <h2 class="mt-3 font-display text-4xl font-bold uppercase text-white sm:text-5xl">Samuel Trejos Saavedra</h2>
+          <p class="mx-auto mt-4 max-w-2xl text-lg text-slate-300">Jugador híbrido: juego de <strong class="text-white">alero</strong> y de <strong class="text-white">base</strong>. Mi lugar está donde el equipo me necesite.</p>
+        </div>
+
+        <div class="mt-14 grid items-center gap-10 lg:grid-cols-2">
+
+          <!-- Media cancha interactiva -->
+          <figure class="reveal">
+            <div class="rounded-2xl border border-white/10 bg-court-900/80 p-4 shadow-blue">
+              <svg viewBox="0 0 300 290" class="block w-full" role="img" aria-label="Media cancha con las cinco posiciones; se resaltan el base (1) y el alero (3), mis dos posiciones">
+                <rect width="300" height="290" rx="10" fill="#7a4a24"/>
+                <rect width="300" height="290" rx="10" fill="url(#vetas)"/>
+                <defs>
+                  <pattern id="vetas" width="24" height="290" patternUnits="userSpaceOnUse">
+                    <rect width="1.5" height="290" fill="#00000030"/>
+                  </pattern>
+                </defs>
+                <rect x="105" y="10" width="90" height="120" fill="#c8102e" fill-opacity=".75"/>
+                <g fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round">
+                  <rect x="10" y="10" width="280" height="270" rx="4"/>
+                  <rect x="105" y="10" width="90" height="120"/>
+                  <path d="M105 130a45 45 0 0 0 90 0"/>
+                  <path d="M45 10v55a110 110 0 0 0 210 0V10" />
+                  <path d="M120 10h60" stroke-width="4"/>
+                </g>
+                <circle cx="150" cy="30" r="8" fill="none" stroke="#f58426" stroke-width="3"/>
+
+                <!-- Posiciones -->
+                <g class="font-display" font-size="15" text-anchor="middle" font-weight="700">
+                  <g class="pos" data-p="base"    transform="translate(150 215)"><circle r="19"/><text y="5.5">1</text></g>
+                  <g class="pos" data-p="escolta" transform="translate(238 158)"><circle r="19"/><text y="5.5">2</text></g>
+                  <g class="pos" data-p="alero"   transform="translate(62 158)"><circle r="19"/><text y="5.5">3</text></g>
+                  <g class="pos" data-p="ala"     transform="translate(210 80)"><circle r="19"/><text y="5.5">4</text></g>
+                  <g class="pos" data-p="pivot"   transform="translate(90 80)"><circle r="19"/><text y="5.5">5</text></g>
+                </g>
+              </svg>
+            </div>
+            <figcaption class="mt-3 text-center text-sm text-slate-400">Elige un modo y mira dónde juego en la cancha.</figcaption>
+          </figure>
+
+          <!-- Tarjeta de jugador -->
+          <div class="reveal">
+            <div role="group" aria-label="Elegir modo de juego" class="mb-6 grid grid-cols-3 gap-2">
+              <button type="button" data-modo="hibrido" class="modo rounded-lg border px-3 py-3 font-display text-sm uppercase tracking-widest transition" aria-pressed="true">Híbrido</button>
+              <button type="button" data-modo="base"    class="modo rounded-lg border px-3 py-3 font-display text-sm uppercase tracking-widest transition" aria-pressed="false">Modo Base</button>
+              <button type="button" data-modo="alero"   class="modo rounded-lg border px-3 py-3 font-display text-sm uppercase tracking-widest transition" aria-pressed="false">Modo Alero</button>
+            </div>
+
+            <article aria-live="polite" class="rounded-2xl border border-white/10 bg-court-900/80 p-8 shadow-red">
+              <p class="font-display text-xs uppercase tracking-[.3em] text-hoop-400" id="modo-etq">Posiciones 1 y 3</p>
+              <h3 class="mt-2 font-display text-3xl font-bold uppercase text-white sm:text-4xl" id="modo-titulo">Jugador híbrido</h3>
+              <p class="mt-4 leading-relaxed text-slate-300" id="modo-desc"></p>
+              <ul class="mt-6 space-y-3" id="modo-lista"></ul>
+            </article>
+          </div>
+        </div>
+
+        <!-- Tres pilares -->
+        <div class="mt-14 grid gap-5 md:grid-cols-3">
+          <article class="reveal rounded-xl border border-white/10 bg-court-900/70 p-6 transition hover:-translate-y-1 hover:border-hoop-500/60">
+            <p class="font-digital text-3xl font-extrabold text-hoop-500">01</p>
+            <h3 class="mt-2 font-display text-xl uppercase tracking-widest text-white">Dirijo</h3>
+            <p class="mt-2 text-sm text-slate-300">Como base, organizo el ataque, cuido el balón y busco al compañero mejor ubicado.</p>
+          </article>
+          <article class="reveal rounded-xl border border-white/10 bg-court-900/70 p-6 transition hover:-translate-y-1 hover:border-hoop-500/60">
+            <p class="font-digital text-3xl font-extrabold text-hoop-500">02</p>
+            <h3 class="mt-2 font-display text-xl uppercase tracking-widest text-white">Anoto</h3>
+            <p class="mt-2 text-sm text-slate-300">Como alero, ataco por dentro y por fuera, y finalizo en transición.</p>
+          </article>
+          <article class="reveal rounded-xl border border-white/10 bg-court-900/70 p-6 transition hover:-translate-y-1 hover:border-hoop-500/60">
+            <p class="font-digital text-3xl font-extrabold text-hoop-500">03</p>
+            <h3 class="mt-2 font-display text-xl uppercase tracking-widest text-white">Me adapto</h3>
+            <p class="mt-2 text-sm text-slate-300">Cambio de rol según lo que pida el partido: por eso soy híbrido.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== CONTACTO ===================== -->
+    <section id="contacto" class="wood relative isolate overflow-hidden px-5 py-28">
+
+      <!-- Fondo: cancha completa dibujada (zona roja, zona azul, círculo central) -->
+      <svg class="absolute inset-0 -z-20 h-full w-full" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <rect x="40" y="255" width="226" height="190" fill="#c8102e" fill-opacity=".6"/>
+        <rect x="934" y="255" width="226" height="190" fill="#1d428a" fill-opacity=".75"/>
+        <circle cx="600" cy="350" r="71" fill="#1d428a" fill-opacity=".55"/>
+        <g fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="4">
+          <rect x="40" y="40" width="1120" height="620"/>
+          <line x1="600" y1="40" x2="600" y2="660"/>
+          <circle cx="600" cy="350" r="71"/>
+          <circle cx="600" cy="350" r="24"/>
+          <rect x="40" y="255" width="226" height="190"/>
+          <rect x="934" y="255" width="226" height="190"/>
+          <circle cx="266" cy="350" r="71"/>
+          <circle cx="934" cy="350" r="71"/>
+          <path d="M40 76H172A283 283 0 0 1 172 624H40"/>
+          <path d="M1160 76H1028A283 283 0 0 0 1028 624H1160"/>
+          <path d="M102 302A48 48 0 0 1 102 398M1098 302A48 48 0 0 0 1098 398"/>
+        </g>
+        <g stroke="#f58426" stroke-width="5" fill="none">
+          <circle cx="102" cy="350" r="9"/><circle cx="1098" cy="350" r="9"/>
+        </g>
+        <g stroke="#fff" stroke-width="5"><line x1="88" y1="320" x2="88" y2="380"/><line x1="1112" y1="320" x2="1112" y2="380"/></g>
+      </svg>
+      <!-- Velo oscuro para que el texto se lea bien -->
+      <div class="absolute inset-0 -z-10 bg-gradient-to-b from-court-950/90 via-court-950/65 to-court-950/95" aria-hidden="true"></div>
+
+      <div class="mx-auto max-w-5xl">
+        <div class="reveal mx-auto max-w-3xl rounded-3xl border border-white/15 bg-black/55 px-8 py-14 text-center text-white shadow-red backdrop-blur-md">
+          <p class="font-display text-sm uppercase tracking-[.3em] text-hoop-400">Contacto</p>
+          <h2 class="mt-3 font-display text-4xl font-bold uppercase sm:text-5xl">¿Listo para el salto inicial?</h2>
+          <p class="mx-auto mt-4 max-w-xl text-white/85">Comparte tu equipo, tu jugador favorito o tu mejor jugada. ¡Hablemos de baloncesto!</p>
+
+          <p class="mt-8 font-digital text-3xl font-extrabold tracking-wider text-white sm:text-4xl">
+            <a href="tel:+573187221800" class="transition hover:text-hoop-400" aria-label="Llamar al 318 722 1800">318 722 1800</a>
+          </p>
+
+          <div class="mt-8 flex flex-wrap justify-center gap-4">
+            <a href="https://wa.me/573187221800?text=Hola%2C%20vi%20tu%20p%C3%A1gina%20de%20baloncesto" target="_blank" rel="noopener noreferrer"
+               class="rounded-md bg-hoop-600 px-9 py-3.5 font-display uppercase tracking-widest text-white shadow-red transition hover:-translate-y-0.5 hover:bg-hoop-500">Escríbeme</a>
+            <a href="tel:+573187221800"
+               class="rounded-md border border-white/30 px-9 py-3.5 font-display uppercase tracking-widest text-white transition hover:bg-white/10">Llamar</a>
+          </div>
+        </div>
+
+        <h3 class="reveal mt-16 text-center font-display text-2xl uppercase tracking-[.2em] text-white">Canchas con carácter</h3>
+        <div class="mt-8 grid gap-6 md:grid-cols-3">
+          <figure class="reveal overflow-hidden rounded-xl border border-white/15 bg-black/40 backdrop-blur">
+            <svg viewBox="0 0 200 130" class="block w-full" role="img" aria-label="Cancha de parquet de madera con zona pintada en azul">
+              <defs><pattern id="pk1" width="16" height="130" patternUnits="userSpaceOnUse"><rect width="16" height="130" fill="#c98a4b"/><rect width="1" height="130" fill="#00000030"/></pattern></defs>
+              <rect width="200" height="130" fill="url(#pk1)"/>
+              
+              <rect x="72" y="8" width="56" height="62" fill="#1d428a99"/>
+              <g fill="none" stroke="#ffffff" stroke-width="1.6">
+                <rect x="6" y="8" width="188" height="116"/>
+                <rect x="72" y="8" width="56" height="62"/>
+                <circle cx="100" cy="70" r="20"/>
+                <path d="M22 8V38A80 80 0 0 0 178 38V8"/>
+              </g>
+              <line x1="88" y1="12" x2="112" y2="12" stroke="#fff" stroke-width="2"/>
+              <circle cx="100" cy="18" r="5" fill="none" stroke="#f58426" stroke-width="2"/>
+              
+            </svg>
+            <figcaption class="p-4">
+              <h4 class="font-display text-lg uppercase tracking-widest text-white">Parquet clásico</h4>
+              <p class="mt-1 text-sm text-slate-300">Madera pulida y líneas blancas: la cancha de toda la vida.</p>
+            </figcaption>
+          </figure>
+          <figure class="reveal overflow-hidden rounded-xl border border-white/15 bg-black/40 backdrop-blur">
+            <svg viewBox="0 0 200 130" class="block w-full" role="img" aria-label="Cancha azul con zona pintada en rojo">
+              
+              <rect width="200" height="130" fill="#1d428a"/>
+              
+              <rect x="72" y="8" width="56" height="62" fill="#c8102e"/>
+              <g fill="none" stroke="#ffffff" stroke-width="1.6">
+                <rect x="6" y="8" width="188" height="116"/>
+                <rect x="72" y="8" width="56" height="62"/>
+                <circle cx="100" cy="70" r="20"/>
+                <path d="M22 8V38A80 80 0 0 0 178 38V8"/>
+              </g>
+              <line x1="88" y1="12" x2="112" y2="12" stroke="#fff" stroke-width="2"/>
+              <circle cx="100" cy="18" r="5" fill="none" stroke="#f58426" stroke-width="2"/>
+              
+            </svg>
+            <figcaption class="p-4">
+              <h4 class="font-display text-lg uppercase tracking-widest text-white">Pintura de colores</h4>
+              <p class="mt-1 text-sm text-slate-300">Zonas en rojo y azul que se ven hasta desde la tribuna.</p>
+            </figcaption>
+          </figure>
+          <figure class="reveal overflow-hidden rounded-xl border border-white/15 bg-black/40 backdrop-blur">
+            <svg viewBox="0 0 200 130" class="block w-full" role="img" aria-label="Cancha de barrio de asfalto con red de cadena">
+              
+              <rect width="200" height="130" fill="#3a4150"/>
+              <path d="M30 60l18 10-6 14M150 95l14-8 10 12M120 40l10 12" fill="none" stroke="#00000055" stroke-width="1.2"/>
+              <rect x="72" y="8" width="56" height="62" fill="#4b5263"/>
+              <g fill="none" stroke="#fde68a" stroke-width="1.6">
+                <rect x="6" y="8" width="188" height="116"/>
+                <rect x="72" y="8" width="56" height="62"/>
+                <circle cx="100" cy="70" r="20"/>
+                <path d="M22 8V38A80 80 0 0 0 178 38V8"/>
+              </g>
+              <line x1="88" y1="12" x2="112" y2="12" stroke="#fff" stroke-width="2"/>
+              <circle cx="100" cy="18" r="5" fill="none" stroke="#f58426" stroke-width="2"/>
+              <path d="M95 22l2 8M100 23v8M105 22l-2 8" stroke="#fff" stroke-width="1"/>
+            </svg>
+            <figcaption class="p-4">
+              <h4 class="font-display text-lg uppercase tracking-widest text-white">Cancha de barrio</h4>
+              <p class="mt-1 text-sm text-slate-300">Asfalto, red de cadena y mucho carácter: donde nace el juego.</p>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="border-t border-white/10 bg-black/40 text-slate-400">
+    <div class="mx-auto max-w-6xl px-5 py-10">
+      <div class="flex flex-col items-center justify-between gap-6 sm:flex-row">
+        <p class="font-display text-xl uppercase tracking-wider text-white">Hard<span class="text-hoop-500">wood</span></p>
+        <nav aria-label="Enlaces del pie de página">
+          <ul class="flex flex-wrap justify-center gap-6 text-sm">
+            <li><a class="transition hover:text-white" href="#juego">El juego</a></li>
+            <li><a class="transition hover:text-white" href="#historia">Historia</a></li>
+            <li><a class="transition hover:text-white" href="#records">Récords</a></li>
+            <li><a class="transition hover:text-white" href="#mi-juego">Mi juego</a></li>
+            <li><a class="transition hover:text-white" href="#contacto">Contacto</a></li>
+          </ul>
+        </nav>
+      </div>
+      <p class="mt-8 text-center text-xs text-slate-500">
+        &copy; 2026 Samuel Trejos Saavedra. Proyecto educativo hecho con HTML5, Tailwind CSS y ayuda de IA. Sitio de aficionados, no afiliado a la NBA ni a ningún equipo.
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    /* Menú móvil */
+    const btn = document.getElementById('menu-btn');
+    const menu = document.getElementById('menu-movil');
+    btn.addEventListener('click', () => {
+      const abierto = menu.classList.toggle('hidden') === false;
+      btn.setAttribute('aria-expanded', abierto);
+    });
+    menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      menu.classList.add('hidden'); btn.setAttribute('aria-expanded', 'false');
+    }));
+
+    /* Aparición al hacer scroll + contadores animados */
+    const contar = (el) => {
+      const meta = +el.dataset.count; let n = 0;
+      const paso = Math.max(1, Math.ceil(meta / 40));
+      const t = setInterval(() => { n = Math.min(meta, n + paso); el.textContent = n; if (n === meta) clearInterval(t); }, 30);
+    };
+    const io = new IntersectionObserver((entradas) => {
+      entradas.forEach(e => {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('visible');
+        e.target.querySelectorAll('[data-count]').forEach(contar);
+        io.unobserve(e.target);
+      });
+    }, { threshold: 0.2 });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+    /* Marcador y reloj animados (solo decorativos) */
+    let seg = 120, local = 104, visita = 101;
+    setInterval(() => {
+      seg = seg > 0 ? seg - 1 : 120;
+      document.getElementById('reloj').textContent =
+        String(Math.floor(seg / 60)).padStart(2, '0') + ':' + String(seg % 60).padStart(2, '0');
+      if (Math.random() < 0.12) {
+        if (Math.random() < 0.5) local += 2; else visita += 2;
+        document.getElementById('marc-local').textContent = local;
+        document.getElementById('marc-visita').textContent = visita;
+      }
+    }, 1000);
+
+    /* Pestañas de posiciones y habilidades clicables */
+    const posiciones = {
+      base: { n: 1, t: 'Base', d: 'El director de juego. Lleva el balón, marca el ritmo del equipo y reparte asistencias para que los compañeros anoten.',
+        s: [ { n: 'Visión de juego',   d: 'Leer la cancha antes que los demás: detectar al compañero libre, anticipar la defensa y elegir el pase correcto.' },
+             { n: 'Manejo del balón',  d: 'Controlar el drible con ambas manos bajo presión para avanzar, proteger el balón y evitar pérdidas.' },
+             { n: 'Liderazgo',         d: 'Comunicar las jugadas, mantener la calma en los momentos difíciles y organizar a los compañeros.' } ] },
+      escolta: { n: 2, t: 'Escolta', d: 'Un anotador exterior. Busca tiros de media y larga distancia y suele ser clave en la defensa del perímetro.',
+        s: [ { n: 'Tiro exterior', d: 'Anotar de media y larga distancia con buena mecánica y rapidez para lanzar tras un bloqueo.' },
+             { n: 'Velocidad',     d: 'Desmarcarse rápido, correr el contraataque y superar al defensor en el uno contra uno.' },
+             { n: 'Defensa',       d: 'Marcar a los anotadores rivales del perímetro, robar balones y cerrar líneas de pase.' } ] },
+      alero: { n: 3, t: 'Alero', d: 'La posición más versátil. Puede anotar, defender y rebotear, adaptándose a distintas situaciones del partido.',
+        s: [ { n: 'Versatilidad', d: 'Cumplir varios roles a la vez: anotar, defender a distintas posiciones y ayudar en el rebote.' },
+             { n: 'Anotación',    d: 'Atacar por dentro y por fuera: penetrar, tirar de tres y finalizar en transición.' },
+             { n: 'Atletismo',    d: 'Salto, fuerza y resistencia para competir con intensidad en ambos lados de la cancha.' } ] },
+      ala: { n: 4, t: 'Ala-pívot', d: 'Combina fuerza y habilidad. Juega cerca del aro, bloquea, rebotea y también puede lanzar desde fuera.',
+        s: [ { n: 'Fuerza',   d: 'Aguantar el contacto cerca del aro para ganar posición y proteger el balón.' },
+             { n: 'Rebote',   d: 'Ganar el balón tras un tiro fallado, tanto en defensa como en ataque.' },
+             { n: 'Bloqueos', d: 'Colocar el cuerpo para liberar a un compañero de su defensor y abrir espacios de tiro.' } ] },
+      pivot: { n: 5, t: 'Pívot', d: 'El jugador más alto. Protege el aro, domina los rebotes y anota cerca de la canasta.',
+        s: [ { n: 'Tapones',        d: 'Desviar los lanzamientos rivales cerca del aro sin cometer falta.' },
+             { n: 'Rebote',         d: 'Dominar la zona pintada y asegurar posesiones extra para el equipo.' },
+             { n: 'Juego interior', d: 'Anotar de espaldas al aro con ganchos, movimientos de pies y remates.' } ] },
+    };
+
+    const tabs = document.querySelectorAll('.tab');
+    let posActual = 'base';
+
+    function mostrarSkill(i) {
+      const h = posiciones[posActual].s[i];
+      document.getElementById('skill-detalle').innerHTML =
+        '<p class="font-display text-xs uppercase tracking-[.3em] text-hoop-400">Habilidad clave</p>' +
+        '<h4 class="mt-1 font-display text-2xl uppercase text-white">' + h.n + '</h4>' +
+        '<p class="mt-2 leading-relaxed text-slate-300">' + h.d + '</p>';
+      document.querySelectorAll('.skill-btn').forEach((b, idx) => {
+        const activo = idx === i;
+        b.setAttribute('aria-pressed', activo);
+        b.className = 'skill-btn w-full cursor-pointer rounded-lg border px-4 py-3 text-center font-display text-sm uppercase tracking-widest transition ' +
+          (activo ? 'border-hoop-500 bg-hoop-600 text-white shadow-red'
+                  : 'border-white/10 bg-court-950/60 text-court-300 hover:border-hoop-500/60 hover:text-white');
+      });
+    }
+
+    function mostrar(clave) {
+      posActual = clave;
+      const p = posiciones[clave];
+      document.getElementById('pos-num').textContent = 'Posición ' + p.n;
+      document.getElementById('pos-titulo').textContent = p.t;
+      document.getElementById('pos-desc').textContent = p.d;
+      const lista = document.getElementById('pos-skills');
+      lista.innerHTML = p.s.map((h, i) =>
+        '<li><button type="button" class="skill-btn" data-i="' + i + '" aria-pressed="false">' + h.n + '</button></li>'
+      ).join('');
+      lista.querySelectorAll('.skill-btn').forEach(b => b.addEventListener('click', () => mostrarSkill(+b.dataset.i)));
+      tabs.forEach(b => {
+        const activo = b.dataset.pos === clave;
+        b.setAttribute('aria-selected', activo);
+        b.className = 'tab shrink-0 rounded-lg border px-5 py-4 text-left font-display uppercase tracking-widest transition ' +
+          (activo ? 'border-hoop-500 bg-hoop-600 text-white shadow-red' : 'border-white/10 bg-court-900/60 text-slate-300 hover:border-white/30');
+      });
+      mostrarSkill(0);
+    }
+    tabs.forEach(b => b.addEventListener('click', () => mostrar(b.dataset.pos)));
+    mostrar('base');
+
+    /* Sección "Mi juego": modos Híbrido / Base / Alero */
+    const modos = {
+      hibrido: { etq: 'Posiciones 1 y 3', t: 'Jugador híbrido', activas: ['base', 'alero'],
+        d: 'Combino lo mejor de dos posiciones: puedo llevar el balón y organizar, o salir a la esquina y atacar el aro. Esa flexibilidad hace al equipo más difícil de defender.',
+        l: ['Cambio de rol durante el partido', 'Visión de juego y anotación', 'Defiendo a más de una posición'] },
+      base: { etq: 'Posición 1', t: 'Modo Base', activas: ['base'],
+        d: 'Como base soy el director del equipo: marco el ritmo, cuido el balón y reparto el juego para que todos participen.',
+        l: ['Visión de juego', 'Manejo del balón', 'Liderazgo y comunicación'] },
+      alero: { etq: 'Posición 3', t: 'Modo Alero', activas: ['alero'],
+        d: 'Como alero busco ser versátil: ataco por dentro y por fuera, reboteo y corro la cancha en transición.',
+        l: ['Versatilidad en ataque', 'Atletismo y rebote', 'Finalizar en transición'] },
+    };
+    const botonesModo = document.querySelectorAll('.modo');
+    function elegirModo(clave) {
+      const m = modos[clave];
+      document.getElementById('modo-etq').textContent = m.etq;
+      document.getElementById('modo-titulo').textContent = m.t;
+      document.getElementById('modo-desc').textContent = m.d;
+      document.getElementById('modo-lista').innerHTML = m.l.map(x =>
+        '<li class="flex items-center gap-3 text-slate-200"><span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-hoop-600 text-xs" aria-hidden="true">&#10003;</span>' + x + '</li>'
+      ).join('');
+      document.querySelectorAll('.pos').forEach(g => g.classList.toggle('activa', m.activas.includes(g.dataset.p)));
+      botonesModo.forEach(b => {
+        const activo = b.dataset.modo === clave;
+        b.setAttribute('aria-pressed', activo);
+        b.className = 'modo rounded-lg border px-3 py-3 font-display text-sm uppercase tracking-widest transition ' +
+          (activo ? 'border-hoop-500 bg-hoop-600 text-white shadow-red' : 'border-white/10 bg-court-900/60 text-slate-300 hover:border-white/30');
+      });
+    }
+    botonesModo.forEach(b => b.addEventListener('click', () => elegirModo(b.dataset.modo)));
+    elegirModo('hibrido');
+  </script>
+</body>
+</html>
